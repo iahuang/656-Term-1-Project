@@ -5,7 +5,7 @@ import re
 from termcolor import colored
 
 parser = argparse.ArgumentParser(
-    description='An utility for building Swift projects outside of XCode')
+    description='A utility for building Swift projects outside of XCode')
 parser.add_argument('-r', default="main.swift",
                     help="The main project file (usually main.swift)")
 parser.add_argument("-o", default="appBuild.swift",
