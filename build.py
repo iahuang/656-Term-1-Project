@@ -36,6 +36,7 @@ for swift_filepath in project_files:
 with open(args.o, "w") as outfile:
     outfile.write("\n".join(files_content))
 
+errors = 0
 if not args.no_compile:
     trace = subprocess.run(["swiftc", args.o], stderr=subprocess.PIPE).stderr
     trace = trace.decode()
@@ -49,6 +50,6 @@ if not args.no_compile:
     print(colored("[PySwift] ","cyan")+ "Compiled with "+error_stats+" and "+warn_stats)
     print()
 
-    if args.run:
-        subprocess.run("./"+args.o.strip(".swift"))
+if args.run and errors == 0:
+    subprocess.run("./"+args.o.strip(".swift"))
 
