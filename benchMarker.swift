@@ -13,9 +13,29 @@ class BenchMarker {
 		var randomList = [Int]()
 		randomList.reserveCapacity(length)
 		for _ in 0..<length {
-			randomList.append(Int.random(in: Int.min...Int.max))
+			randomList.append(randomInt())
 		}
 		return randomList
+	}
+	
+	func randomInt () -> Int {
+		//if newest version of swift, uncomment that line
+		//return Int.random(in: Int.min...Int.max)
+		let firstRandom = UInt(arc4random_uniform(UInt32.max))
+		let randomUInt: UInt
+		if Int.max == Int32.max {
+			randomUInt = firstRandom
+		} else {
+			let secondRandom = UInt(arc4random_uniform(UInt32.max))
+			randomUInt = (firstRandom << 32) + secondRandom
+		}
+		let output: Int
+		if randomUInt > Int.max {
+			output = Int(randomUInt - UInt(Int.max))
+		} else {
+			output = Int(randomUInt)
+		}
+		return output
 	}
 	
 	func fillMap<BenchMap: Map> (_ map: inout BenchMap, _ randomList: [Int]) where BenchMap.Key == Int, BenchMap.Value == Int { //fills map with random values from randomList(1)
