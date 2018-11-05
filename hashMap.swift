@@ -15,7 +15,7 @@ struct HashMap <Key: Hashable & Comparable, Value> : CustomStringConvertible, Ma
 	var collisionsMap = LinearMap<Key, Value>()
 	var hashCount = 0
 	
-	init (initialArraySize: Int) {
+	init (initialArraySize: Int = 10000) {
 		keys = [Key?](repeating: nil, count: initialArraySize)
 		values = [Value?](repeating: nil, count: initialArraySize)
 	}
