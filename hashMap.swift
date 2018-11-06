@@ -37,6 +37,11 @@ struct HashMap <Key: Hashable & Comparable, Value> : CustomStringConvertible, Ma
 			collisionsMap[key] = value
 		}
 	}
+	mutating func clear () {
+		keys = [Key?]()
+		values = [Value?]()
+		collisionsMap = LinearMap<Key, Value>()
+	}
 	
 	func get (_ key: Key) -> Value? {
 		if keys[getIndex(of: key)] == key {

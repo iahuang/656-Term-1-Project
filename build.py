@@ -48,8 +48,9 @@ if not args.no_compile:
     warn_stats = colored("{} warnings".format(warnings),["green","yellow"][warnings>0])
     
     print(colored("[PySwift] ","cyan")+ "Compiled with "+error_stats+" and "+warn_stats)
-    print()
 
 if args.run and errors == 0:
     subprocess.run("./"+args.o.strip(".swift"))
-
+elif errors > 0:
+    print(colored("[PySwift] ","cyan")+colored("Fix compiler errors then try running again","red"))
+print()

@@ -17,6 +17,7 @@ protocol Map: CustomStringConvertible {
 	
 	var count: Int {get}
 	var description: String {get}
+	mutating func clear()
 	
 }
 

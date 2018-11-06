@@ -25,7 +25,10 @@ struct LinearMap <Key: Hashable & Comparable, Value> : CustomStringConvertible, 
 		let index = keys.index(of: key)
 		return index == nil ? nil : values[index!]
 	}
-	
+	mutating func clear () {
+		keys = [Key]()
+		values = [Value]()
+	}
 	var count: Int {
 		get {
 			return keys.count

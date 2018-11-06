@@ -60,7 +60,7 @@ class BenchMarker {
 		var randomList2 = [Int]()
 		randomList2.reserveCapacity(operations)
 		for _ in 0..<operations {
-			randomList2.append(randomList[Int.random(in: 0..<randomList.count)]) //appends random element from randomList(1)
+			randomList2.append(randomList[Int(arc4random_uniform(UInt32(randomList.count)))])
 		}
 		
 		let startDate = Date()

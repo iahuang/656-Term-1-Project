@@ -54,7 +54,10 @@ struct BinaryMap <Key: Hashable & Comparable, Value> : CustomStringConvertible, 
 			values.append(value)
 		}
 	}
-	
+	mutating func clear () {
+		keys = [Key]()
+		values = [Value]()
+	}
 	func get (_ key: Key) -> Value? {
 		let index = binarySearch(key)
 		return index == nil ? nil : values[index!]
