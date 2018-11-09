@@ -47,8 +47,8 @@ def plot_csv(path, function, title, graphstep=100):
     ydata = np.array(ydata)
 
     param, v = curve_fit(function, xdata, ydata)
-    plt.subplot(3,2,i)
-    plt.tight_layout()
+    plt.subplot(3,3,i)
+
     plt.plot(xdata, ydata)
     lin = np.linspace(min(xdata),max(xdata),graphstep)
     plt.plot(lin, function(lin, *param))
@@ -57,11 +57,14 @@ def plot_csv(path, function, title, graphstep=100):
     print("RMSE Loss:",np.sqrt(np.mean(np.power(ydata-function(xdata, *param),2))))
 
 plot_csv("data/linearMapGet.csv", Functions.linear, "Linear map GET O(n)")
-plot_csv("data/linearMapGet.csv", Functions.linear, "Linear map SET O(n)")
+plot_csv("data/linearMapAdd.csv", Functions.linear, "Linear map ADD O(n)")
+plot_csv("data/linearMapUpdate.csv", Functions.linear, "Linear map UPDATE O(n)")
 plot_csv("data/binaryMapGet.csv", Functions.logarithmic, "Binary map GET O(logn)")
-plot_csv("data/binaryMapSet.csv", Functions.linear, "Binary map SET O(n)")
-plot_csv("data/hashMapGet.csv", Functions.constant, "Hash map GET O(C)")
-plot_csv("data/hashMapSet.csv", Functions.linear, "Hash map SET O(n)")
+plot_csv("data/binaryMapAdd.csv", Functions.linear, "Binary map ADD O(n)")
+plot_csv("data/binaryMapUpdate.csv", Functions.linear, "Binary map UPDATE O(logn)")
+plot_csv("data/hashMapGet.csv", Functions.constant, "Hash map GET O(n -> c)")
+plot_csv("data/hashMapAdd.csv", Functions.linear, "Hash map ADD O(n -> c)")
+plot_csv("data/hashMapUpdate.csv", Functions.linear, "Hash map UPDATE O(n -> c)")
 
 # plot_csv("data/binaryMapSet.csv", Functions.logarithmic)
 

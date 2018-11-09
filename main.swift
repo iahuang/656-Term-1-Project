@@ -36,11 +36,10 @@ func testSetFunc<BenchMap: Map> (_ map: inout BenchMap, _ length: Int, _ iters: 
     }
     return results
 }
-var map1 = LinearMap<Int, Int>()
-var results = testSetFunc(&map1, Set([10000]), 100)
-print(results)
-// let fileManager = FileManager.default
-// let path = fileManager.currentDirectoryPath
+
+let fileManager = FileManager.default
+let path = fileManager.currentDirectoryPath
+"oofer".writeToFile(path, atomically: false, encoding: NSUTF8StringEncoding)
 // let benchMarker = BenchMarker()
 // benchMarker.filedTest3Maps(100, 1000, at:path)
 // benchMarker.filedTest3Maps(1000, 1000, at:path)
