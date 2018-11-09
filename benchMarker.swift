@@ -44,7 +44,7 @@ class BenchMarker {
 		}
 	}
 	
-	func testSetFunc<BenchMap: Map> (_ map: inout BenchMap, _ randomList: [Int], _ randomList2: [Int]) -> Double where BenchMap.Key == Int, BenchMap.Value == Int { //inserts each item from randomList2 into their own copy of the full map and returns the average operation time
+	func testAddFunc<BenchMap: Map> (_ map: inout BenchMap, _ randomList: [Int], _ randomList2: [Int]) -> Double where BenchMap.Key == Int, BenchMap.Value == Int { //inserts each item from randomList2 into their own copy of the full map and returns the average operation time
 		var time: Double = 0
 		for i in randomList2 {
 			var mapCopy = map
@@ -56,11 +56,26 @@ class BenchMarker {
 		return time/Double(randomList2.count)
 	}
 	
+	func testUpdateFunc<BenchMap: Map> (_ map: inout BenchMap, _ randomList: [Int], _ operations: Int) -> Double where BenchMap.Key == Int, BenchMap.Value == Int { //Sets thhings that are already in the map because the O(n) is sometimes different *cough* binaryMap *cough*
+		var randomList2 = [Int]()
+		randomList2.reserveCapacity(operations)
+		for _ in 0..<operations {
+			randomList2.append(randomList[Int(arc4random_uniform(UInt32(randomList.count)))]) //appends random element from randomList(1)
+		}
+		
+		let startDate = Date()
+		for i in randomList2 {
+			map.set(i, i)
+		}
+		let elapsed = Date().timeIntervalSince(startDate)
+		return elapsed/Double(operations)
+	}
+	
 	func testGetFunc<BenchMap: Map> (_ map: inout BenchMap, _ randomList: [Int], _ operations: Int) -> Double where BenchMap.Key == Int, BenchMap.Value == Int { //gets from a list of the same length as randomList2 from set but it is randomized items from randomList(1) and returns average operation time
 		var randomList2 = [Int]()
 		randomList2.reserveCapacity(operations)
 		for _ in 0..<operations {
-			randomList2.append(randomList[Int(arc4random_uniform(UInt32(randomList.count)))])
+			randomList2.append(randomList[Int(arc4random_uniform(UInt32(randomList.count)))]) //appends random element from randomList(1)
 		}
 		
 		let startDate = Date()
@@ -71,14 +86,17 @@ class BenchMarker {
 		return elapsed/Double(operations)
 	}
 	
-	func testMap<BenchMap: Map> (_ map: inout BenchMap, _ randomList: [Int], _ randomList2: [Int]) -> (setTime: Double, getTime: Double) where BenchMap.Key == Int, BenchMap.Value == Int { //tests the average operation time for set and get for a given map and returns them
+	func testMap<BenchMap: Map> (_ map: inout BenchMap, _ randomList: [Int], _ randomList2: [Int]) -> mapTimes where BenchMap.Key == Int, BenchMap.Value == Int { //tests the average operation time for set and get for a given map and returns them
 		fillMap(&map, randomList)
-		let setTime = testSetFunc (&map, randomList, randomList2)
+		let addTime = testAddFunc (&map, randomList, randomList2)
+		let updateTime = testUpdateFunc(&map, randomList, randomList2.count)
 		let getTime = testGetFunc(&map, randomList, randomList2.count)
-		return (setTime, getTime)
+		return (addTime, updateTime, getTime)
 	}
 	
-	func test3Maps (_ mapSize: Int, _ operations: Int) -> (linearMap: (setTime: Double, getTime: Double), binaryMap: (setTime: Double, getTime: Double), hashMap: (setTime: Double, getTime: Double)) { //returns the average set time and average get time for maps of size mapSize doing operations number of operations
+	typealias mapTimes = (addTime: Double, updateTime: Double, getTime: Double)
+	
+	func test3Maps (_ mapSize: Int, _ operations: Int) -> (linearMap: mapTimes, binaryMap: mapTimes, hashMap: mapTimes) { //returns the average set time and average get time for maps of size mapSize doing operations number of operations
 		let randomList = makeRandomList(mapSize)
 		let randomList2 = makeRandomList(operations)
 		
@@ -96,23 +114,18 @@ class BenchMarker {
 		return (lmResults, bmResults, hmResults)
 	}
 	
-	func printedTest3Maps (_ mapSize: Int, _ operations: Int) {
-		let data = test3Maps(mapSize, operations)
-		print("linearMapSet: \(mapSize), \(data.linearMap.setTime)")
-		print("linearMapGet: \(mapSize), \(data.linearMap.getTime)")
-		print("binaryMapSet: \(mapSize), \(data.binaryMap.setTime)")
-		print("binaryMapGet: \(mapSize), \(data.binaryMap.getTime)")
-		print("hashMapSet: \(mapSize), \(data.hashMap.setTime)")
-		print("hashMapGet: \(mapSize), \(data.hashMap.getTime)")
-	}
-	
 	func filedTest3Maps (_ mapSize: Int, _ operations: Int, at directory: String) {
 		let data = test3Maps(mapSize, operations)
-		updateFile(directory, "linearMapSet.csv", write: "\(mapSize), \(data.linearMap.setTime)")
+		updateFile(directory, "linearMapAdd.csv", write: "\(mapSize), \(data.linearMap.addTime)")
+		updateFile(directory, "linearMapUpdate.csv", write: "\(mapSize), \(data.linearMap.updateTime)")
 		updateFile(directory, "linearMapGet.csv", write: "\(mapSize), \(data.linearMap.getTime)")
-		updateFile(directory, "binaryMapSet.csv", write: "\(mapSize), \(data.binaryMap.setTime)")
+		
+		updateFile(directory, "binaryMapAdd.csv", write: "\(mapSize), \(data.binaryMap.addTime)")
+		updateFile(directory, "binaryMapUpdate.csv", write: "\(mapSize), \(data.binaryMap.updateTime)")
 		updateFile(directory, "binaryMapGet.csv", write: "\(mapSize), \(data.binaryMap.getTime)")
-		updateFile(directory, "hashMapSet.csv", write: "\(mapSize), \(data.hashMap.setTime)")
+		
+		updateFile(directory, "hashMapAdd.csv", write: "\(mapSize), \(data.hashMap.addTime)")
+		updateFile(directory, "hashMapUpdate.csv", write: "\(mapSize), \(data.hashMap.updateTime)")
 		updateFile(directory, "hashMapGet.csv", write: "\(mapSize), \(data.hashMap.getTime)")
 		
 		
