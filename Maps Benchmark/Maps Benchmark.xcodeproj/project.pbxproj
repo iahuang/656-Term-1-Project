@@ -12,6 +12,7 @@
 		14667ACE218D4429007C9CBB /* linearMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14667ACD218D4429007C9CBB /* linearMap.swift */; };
 		14667AD0218D47FF007C9CBB /* binaryMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14667ACF218D47FF007C9CBB /* binaryMap.swift */; };
 		14667AD2218D49B5007C9CBB /* hashMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14667AD1218D49B5007C9CBB /* hashMap.swift */; };
+		14B277F6219B622F009FEE12 /* benchMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B277F5219B622F009FEE12 /* benchMap.swift */; };
 		14DC4CBC218F48AA00DECB02 /* benchMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DC4CBB218F48AA00DECB02 /* benchMarker.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +35,7 @@
 		14667ACD218D4429007C9CBB /* linearMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = linearMap.swift; sourceTree = "<group>"; };
 		14667ACF218D47FF007C9CBB /* binaryMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = binaryMap.swift; sourceTree = "<group>"; };
 		14667AD1218D49B5007C9CBB /* hashMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hashMap.swift; sourceTree = "<group>"; };
+		14B277F5219B622F009FEE12 /* benchMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = benchMap.swift; sourceTree = "<group>"; };
 		14DC4CBB218F48AA00DECB02 /* benchMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = benchMarker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -71,6 +73,7 @@
 				14667ACB218D427D007C9CBB /* map.swift */,
 				14667ACD218D4429007C9CBB /* linearMap.swift */,
 				14DC4CBB218F48AA00DECB02 /* benchMarker.swift */,
+				14B277F5219B622F009FEE12 /* benchMap.swift */,
 				14667ACF218D47FF007C9CBB /* binaryMap.swift */,
 				14667AD1218D49B5007C9CBB /* hashMap.swift */,
 			);
@@ -139,6 +142,7 @@
 				14DC4CBC218F48AA00DECB02 /* benchMarker.swift in Sources */,
 				14667AD0218D47FF007C9CBB /* binaryMap.swift in Sources */,
 				14667ACC218D427D007C9CBB /* map.swift in Sources */,
+				14B277F6219B622F009FEE12 /* benchMap.swift in Sources */,
 				14667AC5218D4264007C9CBB /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

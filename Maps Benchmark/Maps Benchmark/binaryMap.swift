@@ -67,7 +67,7 @@ struct BinaryMap <Key: Hashable & Comparable, Value> : CustomStringConvertible, 
 	
 	var description: String {
 		get {
-			var output = "\(type(of: self)) ["
+			var output = "\(myType) ["
 			for (index, key) in keys.enumerated() {
 				output += String(describing: key)
 				output += ": "

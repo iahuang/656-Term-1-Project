@@ -17,7 +17,6 @@ protocol Map: CustomStringConvertible {
 	
 	var count: Int {get}
 	var description: String {get}
-	
 }
 
 extension Map {
@@ -30,4 +29,5 @@ extension Map {
 		}
 	}
 	
+	var myType: String {return "\(type(of: self))"}
 }

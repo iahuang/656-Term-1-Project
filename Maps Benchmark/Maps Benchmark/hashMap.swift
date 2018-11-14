@@ -54,7 +54,7 @@ struct HashMap <Key: Hashable & Comparable, Value> : CustomStringConvertible, Ma
 	
 	var description: String {
 		get {
-			var output = "\(type(of: self)) ["
+			var output = "\(myType) ["
 			for (index, maybeKey) in keys.enumerated() {
 				if let key = maybeKey {
 					output += String(describing: key)

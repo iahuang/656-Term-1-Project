@@ -9,6 +9,55 @@
 import Foundation
 
 class BenchMarker {
+	
+	let n: Int
+	let operations: Int
+	let directory: String
+	
+	var randomList: [Int] = []
+	var extraList: [Int] = []
+	var shuffledList: [Int] = []
+	
+	lazy var lm: LinearMap<Int, Int> = {
+		var out = LinearMap<Int, Int>()
+		fillMap(&out)
+		return out
+	}()
+	
+	lazy var bm: BinaryMap<Int, Int> = {
+		var out = BinaryMap<Int, Int>()
+		fillMap(&out)
+		return out
+	}()
+	
+	lazy var hm: HashMap<Int, Int> = {
+		var out = HashMap<Int, Int>()
+		fillMap(&out)
+		return out
+	}()
+	
+	init (n: Int, operations: Int, directory: String) {
+		self.n = n
+		self.operations = operations
+		self.directory = directory
+		
+		randomList = makeRandomList(n)
+		extraList = makeRandomList(operations)
+		shuffledList = makeShuffledList(from: randomList, count: operations)
+	}
+	
+	enum OperationType {
+		case add
+		case update
+		case get
+	}
+	
+	enum MapType {
+		case linearMap
+		case binaryMap
+		case hashMap
+	}
+	
 	func makeRandomList (_ length: Int) -> [Int] {
 		var randomList = [Int]()
 		randomList.reserveCapacity(length)
@@ -27,13 +76,13 @@ class BenchMarker {
 		return shuffledList
 	}
 	
-	func fillMap<BenchMap: Map> (_ map: inout BenchMap, with list: [Int]) where BenchMap.Key == Int, BenchMap.Value == Int {
-		for i in list {
+	func fillMap <BenchMap: BenchMapProtocol> (_ map: inout BenchMap){
+		for i in randomList {
 			map.set(i, i)
 		}
 	}
 	
-	func testAddFunc<BenchMap: Map> (_ map: inout BenchMap, for extraList: [Int]) -> Double where BenchMap.Key == Int, BenchMap.Value == Int {
+	func testAddFunc <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) -> Double {
 		var time: Double = 0
 		for i in extraList {
 			var mapCopy = map
@@ -45,7 +94,7 @@ class BenchMarker {
 		return time/Double(extraList.count)
 	}
 	
-	func testUpdateFunc<BenchMap: Map> (_ map: inout BenchMap, for shuffledList: [Int]) -> Double where BenchMap.Key == Int, BenchMap.Value == Int {
+	func testUpdateFunc <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) -> Double {
 		let startDate = Date()
 		for i in shuffledList {
 			map.set(i, i)
@@ -54,7 +103,7 @@ class BenchMarker {
 		return elapsed/Double(shuffledList.count)
 	}
 	
-	func testGetFunc<BenchMap: Map> (_ map: inout BenchMap, for shuffledList: [Int]) -> Double where BenchMap.Key == Int, BenchMap.Value == Int {
+	func testGetFunc<BenchMap: BenchMapProtocol> (_ map: inout BenchMap) -> Double {
 		let startDate = Date()
 		for i in shuffledList {
 			map.get(i)
@@ -63,54 +112,60 @@ class BenchMarker {
 		return elapsed/Double(shuffledList.count)
 	}
 	
-	func testMap<BenchMap: Map> (_ map: inout BenchMap, fillerList: [Int], extraList: [Int], shuffledList: [Int]) -> mapTimes where BenchMap.Key == Int, BenchMap.Value == Int {
-		fillMap(&map, with: fillerList)
-		let addTime = testAddFunc (&map, for: extraList)
-		let updateTime = testUpdateFunc(&map, for: shuffledList)
-		let getTime = testGetFunc(&map, for: shuffledList)
-		return (addTime, updateTime, getTime)
+	func writeAddTest <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) {
+		let fileName = generateFileNameFor(map: &map, operation: .add)
+		let toWrite = "\(n), \(testAddFunc(&map))"
+		
+		updateFile(fileName, data: toWrite)
 	}
 	
-	typealias mapTimes = (addTime: Double, updateTime: Double, getTime: Double)
-	
-	func test3Maps (_ mapSize: Int, _ operations: Int) -> (linearMap: mapTimes, binaryMap: mapTimes, hashMap: mapTimes) {
-		let fillerList = makeRandomList(mapSize)
-		let extraList = makeRandomList(operations)
-		let shuffledList = makeShuffledList(from: fillerList, count: operations)
+	func writeUpdateTest <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) {
+		let fileName = generateFileNameFor(map: &map, operation: .update)
+		let toWrite = "\(n), \(testUpdateFunc(&map))"
 		
-		let hashMapSize = 2 * mapSize
-		
-		var lm = LinearMap<Int, Int>()
-		var bm = BinaryMap<Int, Int>()
-		var hm = HashMap<Int, Int>(initialArraySize: hashMapSize)
-		
-		
-		let lmResults = testMap(&lm, fillerList: fillerList, extraList: extraList, shuffledList: shuffledList)
-		let bmResults = testMap(&bm, fillerList: fillerList, extraList: extraList, shuffledList: shuffledList)
-		let hmResults = testMap(&hm, fillerList: fillerList, extraList: extraList, shuffledList: shuffledList)
-		
-		return (lmResults, bmResults, hmResults)
+		updateFile(fileName, data: toWrite)
 	}
 	
-	func filedTest3Maps (_ mapSize: Int, _ operations: Int, at directory: String) {
-		let data = test3Maps(mapSize, operations)
-		updateFile(directory, "linearMapAdd.csv", write: "\(mapSize), \(data.linearMap.addTime)")
-		updateFile(directory, "linearMapUpdate.csv", write: "\(mapSize), \(data.linearMap.updateTime)")
-		updateFile(directory, "linearMapGet.csv", write: "\(mapSize), \(data.linearMap.getTime)")
+	func writeGetTest <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) {
+		let fileName = generateFileNameFor(map: &map, operation: .get)
+		let toWrite = "\(n), \(testGetFunc(&map))"
 		
-		updateFile(directory, "binaryMapAdd.csv", write: "\(mapSize), \(data.binaryMap.addTime)")
-		updateFile(directory, "binaryMapUpdate.csv", write: "\(mapSize), \(data.binaryMap.updateTime)")
-		updateFile(directory, "binaryMapGet.csv", write: "\(mapSize), \(data.binaryMap.getTime)")
-		
-		updateFile(directory, "hashMapAdd.csv", write: "\(mapSize), \(data.hashMap.addTime)")
-		updateFile(directory, "hashMapUpdate.csv", write: "\(mapSize), \(data.hashMap.updateTime)")
-		updateFile(directory, "hashMapGet.csv", write: "\(mapSize), \(data.hashMap.getTime)")
-		
-		
-		
+		updateFile(fileName, data: toWrite)
 	}
 	
-	func updateFile (_ directory: String, _ fileName: String, write data: String) {
+	func runTest (_ map: MapType, _ operation: OperationType) { //I had to use nested switch statements because swift didn't like my generics.  Any other way, including helper functions, caused an error.  Please don't take off points here.  Swift forced me to do it.
+		switch map {
+		case .linearMap:
+			switch operation {
+			case .add:
+				writeAddTest(&lm)
+			case .update:
+				writeUpdateTest(&lm)
+			case .get:
+				writeGetTest(&lm)
+			}
+		case .binaryMap:
+			switch operation {
+			case .add:
+				writeAddTest(&bm)
+			case .update:
+				writeUpdateTest(&bm)
+			case .get:
+				writeGetTest(&bm)
+			}
+		case .hashMap:
+			switch operation {
+			case .add:
+				writeAddTest(&hm)
+			case .update:
+				writeUpdateTest(&hm)
+			case .get:
+				writeGetTest(&hm)
+			}
+		}
+	}
+	
+	func updateFile (_ fileName: String, data: String) {
 		var maybeFile = FileHandle(forUpdatingAtPath: directory + "/" + fileName)
 		if maybeFile == nil {
 			FileManager.default.createFile(atPath: directory + "/" + fileName, contents: nil, attributes: nil)
@@ -124,5 +179,32 @@ class BenchMarker {
 		let toWrite = data + "\n"
 		file.write(toWrite.data(using: String.Encoding.utf8)!)
 		file.closeFile()
+	}
+	
+	func generateFileNameFor <BenchMap: BenchMapProtocol> (map: inout BenchMap, operation: OperationType) -> String {
+		var fileName = ""
+		
+		switch map.myType {
+		case "LinearMap<Int, Int>":
+			fileName += "linearMap"
+		case "BinaryMap<Int, Int>":
+			fileName += "binaryMap"
+		case "HashMap<Int, Int>":
+			fileName += "hashMap"
+		default:
+			fileName += "This isn't a linear, binary, or hash map so idk what just happened"
+		}
+		
+		switch operation {
+		case .add:
+			fileName += "Add"
+		case .update:
+			fileName += "Update"
+		case .get:
+			fileName += "Get"
+		}
+		
+		fileName += ".csv"
+		return fileName
 	}
 }
