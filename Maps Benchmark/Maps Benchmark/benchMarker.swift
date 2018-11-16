@@ -13,37 +13,45 @@ class BenchMarker {
 	let n: Int
 	let operations: Int
 	let directory: String
+	let mapCount: Int
 	
-	var randomList: [Int] = []
-	var extraList: [Int] = []
-	var shuffledList: [Int] = []
+	var randomLists: [[Int]] = []
+	var extraLists: [[Int]] = []
+	var shuffledLists: [[Int]] = []
 	
-	lazy var lm: LinearMap<Int, Int> = {
-		var out = LinearMap<Int, Int>()
-		fillMap(&out)
+	lazy var lm: [LinearMap<Int, Int>] = {
+		var out = [LinearMap<Int, Int>](repeating: LinearMap<Int, Int>(), count: mapCount)
+		fillMaps(&out)
 		return out
 	}()
 	
-	lazy var bm: BinaryMap<Int, Int> = {
-		var out = BinaryMap<Int, Int>()
-		fillMap(&out)
+	lazy var bm: [BinaryMap<Int, Int>] = {
+		var out = [BinaryMap<Int, Int>](repeating: BinaryMap<Int, Int>(), count: mapCount)
+		fillMaps(&out)
 		return out
 	}()
 	
-	lazy var hm: HashMap<Int, Int> = {
-		var out = HashMap<Int, Int>()
-		fillMap(&out)
+	lazy var hm: [HashMap<Int, Int>] = {
+		var out = [HashMap<Int, Int>](repeating: HashMap<Int, Int>(initialArraySize: 2 * n), count: mapCount)
+		fillMaps(&out)
 		return out
 	}()
 	
-	init (n: Int, operations: Int, directory: String) {
+	init (n: Int, operations: Int, mapCount: Int, directory: String) {
 		self.n = n
 		self.operations = operations
 		self.directory = directory
+		self.mapCount = mapCount
 		
-		randomList = makeRandomList(n)
-		extraList = makeRandomList(operations)
-		shuffledList = makeShuffledList(from: randomList, count: operations)
+		randomLists.reserveCapacity(mapCount)
+		extraLists.reserveCapacity(mapCount)
+		shuffledLists.reserveCapacity(mapCount)
+		
+		for i in 0..<mapCount {
+			randomLists.append(makeRandomList(n))
+			extraLists.append(makeRandomList(operations))
+			shuffledLists.append(makeShuffledList(from: randomLists[i], count: operations))
+		}
 	}
 	
 	enum OperationType {
@@ -76,59 +84,67 @@ class BenchMarker {
 		return shuffledList
 	}
 	
-	func fillMap <BenchMap: BenchMapProtocol> (_ map: inout BenchMap){
-		for i in randomList {
-			map.set(i, i)
+	func fillMaps <BenchMap: BenchMapProtocol> (_ maps: inout [BenchMap]){
+		for index in 0..<maps.count {
+			for i in randomLists[index] {
+				maps[index].set(i, i)
+			}
 		}
 	}
 	
-	func testAddFunc <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) -> Double {
+	func testAddFunc <BenchMap: BenchMapProtocol> (_ maps: inout [BenchMap]) -> Double {
 		var time: Double = 0
-		for i in extraList {
-			var mapCopy = map
-			let startDate = Date()
-			mapCopy.set(i, i)
-			let elapsed = Date().timeIntervalSince(startDate)
-			time += elapsed
+		for index in 0..<maps.count {
+			for i in extraLists[index] {
+				var mapCopy = maps[index]
+				let startDate = Date()
+				mapCopy.set(i, i)
+				let elapsed = Date().timeIntervalSince(startDate)
+				time += elapsed
+			}
 		}
-		return time/Double(extraList.count)
+		return time / Double(operations * mapCount)
 	}
 	
-	func testUpdateFunc <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) -> Double {
+	func testUpdateFunc <BenchMap: BenchMapProtocol> (_ maps: inout [BenchMap]) -> Double {
 		let startDate = Date()
-		for i in shuffledList {
-			map.set(i, i)
+		for index in 0..<maps.count {
+			for i in shuffledLists[index] {
+				maps[index].set(i, i)
+			}
 		}
 		let elapsed = Date().timeIntervalSince(startDate)
-		return elapsed/Double(shuffledList.count)
+		return elapsed / Double(operations * mapCount)
 	}
 	
-	func testGetFunc<BenchMap: BenchMapProtocol> (_ map: inout BenchMap) -> Double {
+	func testGetFunc <BenchMap: BenchMapProtocol> (_ maps: inout [BenchMap]) -> Double {
 		let startDate = Date()
-		for i in shuffledList {
-			map.get(i)
+		for index in 0..<maps.count {
+			for i in shuffledLists[index] {
+				maps[index].get(i)
+			}
 		}
 		let elapsed = Date().timeIntervalSince(startDate)
-		return elapsed/Double(shuffledList.count)
+		return elapsed / Double(operations * mapCount)
 	}
 	
-	func writeAddTest <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) {
-		let fileName = generateFileNameFor(map: &map, operation: .add)
-		let toWrite = "\(n), \(testAddFunc(&map))"
+	func writeAddTest <BenchMap: BenchMapProtocol> (_ maps: inout [BenchMap]) {
+		let fileName = generateFileNameFor(map: &maps[0], operation: .add)
+		let toWrite = "\(n), \(testAddFunc(&maps))"
 		
 		updateFile(fileName, data: toWrite)
 	}
 	
-	func writeUpdateTest <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) {
-		let fileName = generateFileNameFor(map: &map, operation: .update)
-		let toWrite = "\(n), \(testUpdateFunc(&map))"
+	func writeUpdateTest <BenchMap: BenchMapProtocol> (_ maps: inout [BenchMap]) {
+		let fileName = generateFileNameFor(map: &maps[0], operation: .update)
+		let toWrite = "\(n), \(testUpdateFunc(&maps))"
 		
 		updateFile(fileName, data: toWrite)
 	}
 	
-	func writeGetTest <BenchMap: BenchMapProtocol> (_ map: inout BenchMap) {
-		let fileName = generateFileNameFor(map: &map, operation: .get)
-		let toWrite = "\(n), \(testGetFunc(&map))"
+	func writeGetTest <BenchMap: BenchMapProtocol> (_ maps: inout [BenchMap]) {
+		let fileName = generateFileNameFor(map: &maps[0], operation: .get)
+		let toWrite = "\(n), \(testGetFunc(&maps))"
 		
 		updateFile(fileName, data: toWrite)
 	}

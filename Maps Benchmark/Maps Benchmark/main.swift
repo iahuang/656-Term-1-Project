@@ -2,12 +2,19 @@ import Foundation
 
 let fileManager = FileManager.default
 let path = fileManager.currentDirectoryPath + "/data"
-let benchMarkers = [BenchMarker(n: 10, operations: 100, directory: path),
-					BenchMarker(n: 100, operations: 100, directory: path),
-					BenchMarker(n: 1000, operations: 100, directory: path),
-					BenchMarker(n: 10000, operations: 100, directory: path),
-					BenchMarker(n: 10000, operations: 100, directory: path)
+let benchMarkers = [BenchMarker(n: 10, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 15, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 25, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 40, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 63, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 100, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 150, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 250, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 400, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 630, operations: 1000, mapCount: 100, directory: path),
+					BenchMarker(n: 1000, operations: 1000, mapCount: 100, directory: path)
 ]
+
 
 func runAllBenchMarks (_ benchMarker: BenchMarker) {
 	benchMarker.runTest(.linearMap, .add)
@@ -24,5 +31,5 @@ func runAllBenchMarks (_ benchMarker: BenchMarker) {
 }
 
 for benchMarker in benchMarkers {
-	benchMarker.runTest(.binaryMap, .update)
+	runAllBenchMarks(benchMarker)
 }

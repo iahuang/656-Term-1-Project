@@ -42,15 +42,18 @@ struct BinaryMap <Key: Hashable & Comparable, Value> : CustomStringConvertible, 
 		if let index = binarySearch(key) {
 			values[index] = value
 		} else {
-			for (index, current) in keys.enumerated() {
-				if current > key {
-					keys.insert(key, at: index)
-					values.insert(value, at: index)
-					return
+			
+			var insertIndex = keys.count
+			
+			for (index, n) in keys.enumerated() {
+				if (key < n) {
+					insertIndex = index
+					break
 				}
 			}
-			keys.append(key)
-			values.append(value)
+			
+			keys.insert(key, at: insertIndex)
+			values.insert(value, at: insertIndex)
 		}
 	}
 
