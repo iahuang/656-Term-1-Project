@@ -52,8 +52,8 @@ def plot_csv(path, function, title, graphstep=100):
     ydata = np.array(ydata)
 
     param, v = curve_fit(function, xdata, ydata)
-
-    plt.plot(xdata, ydata-function(xdata, *param), 'o')
+    res = ydata-function(xdata, *param)
+    plt.plot(xdata, res, 'o')
     lin = np.linspace(min(xdata), max(xdata), graphstep)
     plt.plot(lin, lin*0)
     plt.xscale("log")
@@ -64,10 +64,14 @@ def plot_csv(path, function, title, graphstep=100):
     plt.xlabel("n: Number of elements in the map being operated on.")
     plt.ylabel("Difference between predicted and actual time (ms)")
     print("RMSE Loss:", np.sqrt(np.mean(np.power(ydata-function(xdata, *param), 2))))
-    plt.savefig('ris_sep/graph{}.png'.format(i), bbox_inches='tight')
+    plt.savefig('ris_sep/graph{}.png'.format(i), bbox_inches='tight',dpi=200)
+    # Credit to https://stackoverflow.com/questions/19189362/getting-the-r-squared-value-using-curve-fit
+    s_res = np.sum(res**2)
+    s_tot = np.sum((ydata-np.mean(ydata))**2)
+    r2 = 1-(s_res/s_tot)
+    print("r^2 = ",r2)
 
-
-plt.figure(figsize=(18, 6))
+plt.figure(figsize=(12, 4))
 plot_csv("data/linearMapGet.csv", Functions.linear, "Linear map GET O(n)")
 plot_csv("data/linearMapAdd.csv", Functions.linear, "Linear map ADD O(n)")
 plot_csv("data/linearMapUpdate.csv",
